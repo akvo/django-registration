@@ -150,7 +150,6 @@ class RegistrationManager(models.Manager):
         be deleted.
         
         """
-        from django.contrib.auth.models import User
         for profile in self.all():
             try:
                 if profile.activation_key_expired():
