@@ -29,8 +29,7 @@ class SimpleBackendViewTests(TestCase):
         self.assertRedirects(resp, reverse('registration_disallowed'))
         
         resp = self.client.post(reverse('registration_register'),
-                                data={'username': 'bob',
-                                      'email': 'bob@example.com',
+                                data={'email': 'bob@example.com',
                                       'password1': 'secret',
                                       'password2': 'secret'})
         self.assertRedirects(resp, reverse('registration_disallowed'))
@@ -56,12 +55,11 @@ class SimpleBackendViewTests(TestCase):
 
         """
         resp = self.client.post(reverse('registration_register'),
-                                data={'username': 'bob',
-                                      'email': 'bob@example.com',
+                                data={'email': 'bob@example.com',
                                       'password1': 'secret',
                                       'password2': 'secret'})
 
-        new_user = get_user_model().objects.get(username='bob')
+        new_user = get_user_model().objects.get(email='bob@example.com')
         self.assertEqual(302, resp.status_code)
         self.assertTrue(new_user.get_absolute_url() in resp['Location'])
 
@@ -81,8 +79,7 @@ class SimpleBackendViewTests(TestCase):
         
         """
         resp = self.client.post(reverse('registration_register'),
-                                data={'username': 'bob',
-                                      'email': 'bob@example.com',
+                                data={'email': 'bob@example.com',
                                       'password1': 'secret',
                                       'password2': 'notsecret'})
         self.assertEqual(200, resp.status_code)

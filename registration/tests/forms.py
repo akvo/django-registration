@@ -20,21 +20,8 @@ class RegistrationFormTests(TestCase):
         get_user_model().objects.create_user('alice', 'alice@example.com', 'secret')
 
         invalid_data_dicts = [
-            # Non-alphanumeric username.
-            {'data': {'username': 'foo/bar',
-                      'email': 'foo@example.com',
-                      'password1': 'foo',
-                      'password2': 'foo'},
-            'error': ('username', [u"This value may contain only letters, numbers and @/./+/-/_ characters."])},
-            # Already-existing username.
-            {'data': {'username': 'alice',
-                      'email': 'alice@example.com',
-                      'password1': 'secret',
-                      'password2': 'secret'},
-            'error': ('username', [u"A user with that username already exists."])},
             # Mismatched passwords.
-            {'data': {'username': 'foo',
-                      'email': 'foo@example.com',
+            {'data': {'email': 'foo@example.com',
                       'password1': 'foo',
                       'password2': 'bar'},
             'error': ('__all__', [u"The two password fields didn't match."])},
@@ -46,8 +33,7 @@ class RegistrationFormTests(TestCase):
             self.assertEqual(form.errors[invalid_dict['error'][0]],
                              invalid_dict['error'][1])
 
-        form = forms.RegistrationForm(data={'username': 'foo',
-                                            'email': 'foo@example.com',
+        form = forms.RegistrationForm(data={'email': 'foo@example.com',
                                             'password1': 'foo',
                                             'password2': 'foo'})
         self.assertTrue(form.is_valid())
@@ -58,16 +44,14 @@ class RegistrationFormTests(TestCase):
         agreement to the terms of service.
 
         """
-        form = forms.RegistrationFormTermsOfService(data={'username': 'foo',
-                                                          'email': 'foo@example.com',
+        form = forms.RegistrationFormTermsOfService(data={'email': 'foo@example.com',
                                                           'password1': 'foo',
                                                           'password2': 'foo'})
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['tos'],
                          [u"You must agree to the terms to register"])
 
-        form = forms.RegistrationFormTermsOfService(data={'username': 'foo',
-                                                          'email': 'foo@example.com',
+        form = forms.RegistrationFormTermsOfService(data={'email': 'foo@example.com',
                                                           'password1': 'foo',
                                                           'password2': 'foo',
                                                           'tos': 'on'})
@@ -81,18 +65,16 @@ class RegistrationFormTests(TestCase):
         """
         # Create a user so we can verify that duplicate addresses
         # aren't permitted.
-        get_user_model().objects.create_user('alice', 'alice@example.com', 'secret')
+        get_user_model().objects.create_user('alice@example.com', 'secret')
 
-        form = forms.RegistrationFormUniqueEmail(data={'username': 'foo',
-                                                       'email': 'alice@example.com',
+        form = forms.RegistrationFormUniqueEmail(data={'email': 'alice@example.com',
                                                        'password1': 'foo',
                                                        'password2': 'foo'})
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['email'],
                          [u"This email address is already in use. Please supply a different email address."])
 
-        form = forms.RegistrationFormUniqueEmail(data={'username': 'foo',
-                                                       'email': 'foo@example.com',
+        form = forms.RegistrationFormUniqueEmail(data={'email': 'foo@example.com',
                                                        'password1': 'foo',
                                                        'password2': 'foo'})
         self.assertTrue(form.is_valid())
@@ -103,8 +85,7 @@ class RegistrationFormTests(TestCase):
         registration with free email addresses.
 
         """
-        base_data = {'username': 'foo',
-                     'password1': 'foo',
+        base_data = {'password1': 'foo',
                      'password2': 'foo'}
         for domain in forms.RegistrationFormNoFreeEmail.bad_domains:
             invalid_data = base_data.copy()

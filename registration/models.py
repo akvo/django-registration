@@ -68,8 +68,7 @@ class RegistrationManager(models.Manager):
                 return user
         return False
     
-    def create_inactive_user(self, username, email, password,
-                             site, send_email=True):
+    def create_inactive_user(self, email, password, site, send_email=True):
         """
         Create a new, inactive ``User``, generate a
         ``RegistrationProfile`` and email its activation key to the
@@ -79,8 +78,7 @@ class RegistrationManager(models.Manager):
         user. To disable this, pass ``send_email=False``.
         
         """
-        # from django.contrib.auth.models import User
-        new_user = get_user_model().objects.create_user(username, email, password)
+        new_user = get_user_model().objects.create_user(email, password)
         new_user.is_active = False
         new_user.save()
 
@@ -99,16 +97,15 @@ class RegistrationManager(models.Manager):
         
         The activation key for the ``RegistrationProfile`` will be a
         SHA1 hash, generated from a combination of the ``User``'s
-        username and a random salt.
+        email and a random salt.
         
         """
         salt_bytes = str(random.random()).encode('utf-8')
         salt = hashlib.sha1(salt_bytes).hexdigest()[:5]
 
-        hash_input = (salt + user.username).encode('utf-8')
+        hash_input = (salt + user.email).encode('utf-8')
         activation_key = hashlib.sha1(hash_input).hexdigest()
-        return self.create(user=user,
-                           activation_key=activation_key)
+        return self.create(user=user, activation_key=activation_key)
         
     def delete_expired_users(self):
         """
